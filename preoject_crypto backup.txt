@@ -1,0 +1,248 @@
+from bs4 import BeautifulSoup
+import urllib.request  as urllib2 
+import datetime
+import time
+import matplotlib.pyplot as plt
+import requests as req
+from selenium import webdriver, common
+import re 
+import win32com.client as wc 
+from selenium.common import exceptions
+
+def percent_change(name, return_val, counter, data = []):
+    if counter<len(data):
+        data[counter] = data[counter].replace('%', '')
+        if(counter == 0):
+            return_val = float(data[counter])
+        else:
+            return_val -= float(data[counter])
+        counter += 1
+        return percent_change(name, return_val, counter, data)
+    else:
+        return round(-return_val, 2)
+
+def percent_change_2(data = []):
+    if(len(data) == 2):       
+        return float(round((1 - data[1]/data[0])*100, 5))
+    else:
+        return 0
+        
+def percent_change_3(current_percent, data = []):
+    for i in range(len(data)):
+        if(data[i]>current_percent):
+            current_percent = data[i]
+    return current_percent
+
+speak = wc.Dispatch("Sapi.spVoice")
+#speak.speak("Starting")
+
+driver = webdriver.Chrome('C:/Users/balto/OneDrive/Desktop/ProjectCrypto/chromedriver.exe')
+#driver.get('https://www.livecoinwatch.com/')
+
+BTC = []
+DOGE = []
+ETH = []
+ETC = []
+BSV = []
+LTC = []
+
+ticks = []
+
+timer = 0
+ticks.append(timer)
+
+percent_change_val= 0.1
+
+while(True):
+    try:
+        time.sleep(5)
+        driver.get('https://www.coinbase.com/price')
+        html_page = driver.page_source
+        soup = BeautifulSoup(html_page, 'html.parser')
+        coins = soup.find_all('h4', class_ = "TextElement__Spacer-hxkcw5-0 caIgfs Header__StyledHeader-sc-1xiyexz-0 jKklfu AssetTableRow__StyledHeader-bzcx4v-13 AssetTableRow__StyledHeaderDark-bzcx4v-15 hgGcEi")
+        percentage = soup.find_all('h4', class_ = "TextElement__Spacer-hxkcw5-0 caIgfs Header__StyledHeader-sc-1xiyexz-0 gCmtXt AssetTableRow__StyledHeader-bzcx4v-13 AssetTableRow__StyledHeaderDark-bzcx4v-15 hgGcEi asset-table-percent-change")
+        for i in range(len(coins)):
+            #print(coins[i].contents[0])
+            if(coins[i].contents[0] == 'Bitcoin'):
+                temp = []
+                temp_string = str(coins[i+1].contents[0])
+                temp_string = temp_string.replace("$", "")
+                temp_string = temp_string.replace(",", "")
+                temp.append(coins[i].contents[0])
+                temp.append(float(temp_string))
+                temp.append(percentage[1].contents[0])
+                BTC.append(temp)
+                #print(BTC)
+                if len(BTC) == 2:
+                    temp = []
+                    temp2 = []
+                    for j in range(2):       
+                        try:
+                            #print(BTC[j][2])
+                            temp.append(BTC[j][2])
+                            temp2.append(BTC[j][1])
+                            #print(temp2)
+                        except IndexError:
+                            print("Error")
+                            continue
+                    print(temp)
+                    print(temp2)
+                    #print(percent_change('BTC',0,0,temp))
+                    #print(percent_change('BTC',0,0,temp))
+                    #speak.speak("warning Bitcoin, percent change, greater than " + str(percent_change('BTC',0,0,temp)))
+                    if(abs(percent_change(BTC[0][0],0,0,temp))>percent_change_val or abs(percent_change_2(temp2))>percent_change_val):
+                        speak.speak("warning Bitcoin, percent change, greater than " + str(percent_change(BTC[0][0],0,0,temp)))
+                        print("BTC percent change " + str(percent_change(BTC[0][0],0,0,temp)))
+                        print("BTC percent change " + str(percent_change_2(temp2)))
+                    BTC = []
+            elif(coins[i].contents == ['Dogecoin']):
+                timer += 1
+                temp = []
+                temp_string = str(coins[i+1].contents[0])
+                temp_string = temp_string.replace("$", "")
+                temp_string = temp_string.replace(",", "")
+                temp.append(coins[i].contents[0])
+                temp.append(float(temp_string))
+                temp.append(percentage[33].contents[0])
+                DOGE.append(temp)
+                if len(DOGE) == 2:
+                    temp = []
+                    temp2 = []
+                    for j in range(2):       
+                        try:
+                            
+                            #print(DOGE[j][2])
+                            temp.append(DOGE[j][2])
+                            temp2.append(DOGE[j][1])
+                        except IndexError:
+                            print("Error")
+                            continue
+                    #print(percent_change_2(temp))
+                    if(abs(percent_change(DOGE[0][0],0,0,temp))>percent_change_val or abs(percent_change_2(temp2))>percent_change_val):
+                        speak.speak("warning Dogecoin, percent change, greater than " +  str(percent_change(DOGE[0][0],0,0,temp)))
+                        print("DOGE percent change " + str(percent_change(DOGE[0][0],0,0,temp)))
+                        print("DOGE percent change " + str(percent_change_2(temp2)))
+                #print(DOGE
+                DOGE = []
+            elif(coins[i].contents == ['Ethereum']):
+                timer += 1
+                temp = []
+                temp_string = str(coins[i+1].contents[0])
+                temp_string = temp_string.replace("$", "")
+                temp_string = temp_string.replace(",", "")
+                temp.append(coins[i].contents[0])
+                temp.append(float(temp_string))
+                temp.append(percentage[2].contents[0])
+                ETH.append(temp)
+                if len(ETH) == 2:
+                    temp = []
+                    temp2 = []
+                    for j in range(2):       
+                        try:
+                            #print(DOGE[j][2])
+                            
+                            temp.append(ETH[j][2])
+                            temp2.append(ETH[j][1])
+                        except IndexError:
+                            print("Error")
+                            continue
+                    #print(percent_change_2(temp))
+                    if(abs(percent_change(ETH[0][0],0,0,temp))>percent_change_val or abs(percent_change_2(temp2))>percent_change_val):
+                        speak.speak("warning Etherium percent change, greater than 1" +  str(percent_change(ETH[0][0],0,0,temp)))
+                        print("ETH percent change " + str(percent_change(ETH[0][0],0,0,temp)))
+                        print("ETH percent change " + str(percent_change_2(temp2)))
+                #print(ETH)
+                ETH = []
+            elif(coins[i].contents == ['Ethereum Classic']):
+                timer += 1
+                temp = []
+                temp_string = str(coins[i+1].contents[0])
+                temp_string = temp_string.replace("$", "")
+                temp_string = temp_string.replace(",", "")
+                temp.append(coins[i].contents[0])
+                temp.append(float(temp_string))
+                temp.append(percentage[21].contents[0])
+                ETC.append(temp)
+                if len(ETC) == 2:
+                    temp = []
+                    temp2 = []
+                    for j in range(2):       
+                        try:
+                            #print(DOGE[j][2])
+
+                            temp.append(ETC[j][2])
+                            temp2.append(ETC[j][1])
+                        except IndexError:
+                            print("Error")
+                            continue
+                    if(abs(percent_change(ETC[0][0],0,0,temp))>percent_change_val or abs(percent_change_2(temp2))>percent_change_val):
+                        speak.speak("warning Etherium Classic, percent change, greater than "  + str(percent_change(ETC[0][0],0,0,temp)) )
+                        print("ETC percent change " + str(percent_change(ETC[0][0],0,0,temp)))
+                        print("ETC percent change " + str(percent_change_2(temp2)))
+                    ETC = []
+            elif(coins[i].contents == ['Bitcoin SV']):
+                timer += 1
+                temp = []
+                temp_string = str(coins[i+1].contents[0])
+                temp_string = temp_string.replace("$", "")
+                temp_string = temp_string.replace(",", "")
+                temp.append(coins[i].contents[0])
+                temp.append(float(temp_string))
+                temp.append(percentage[6].contents[0])
+                BSV.append(temp)
+                if len(BSV) == 2:
+                    temp = []
+                    temp2 = []
+                    for j in range(2):       
+                        try:
+                            #print(DOGE[j][2])
+
+                            temp.append(BSV[j][2])
+                            temp2.append(BSV[j][1])
+                        except IndexError:
+                            print("Error")
+                            continue
+                    if(abs(percent_change(BSV[0][0],0,0,temp))>percent_change_val or abs(percent_change_2(temp2))>percent_change_val):
+                        speak.speak("warning Bitcoin SV, percent change, greater than "  + str(percent_change(BSV[0][0],0,0,temp)) )
+                        print("BSV percent change " + str(percent_change(BSV[0][0],0,0,temp)))
+                        print("BSV percent change " + str(percent_change_2(temp2)))
+                        
+                    BSV = []
+            elif(coins[i].contents == ['Litecoin']):
+                timer += 1
+                temp = []
+                temp_string = str(coins[i+1].contents[0])
+                temp_string = temp_string.replace("$", "")
+                temp_string = temp_string.replace(",", "")
+                temp.append(coins[i].contents[0])
+                temp.append(float(temp_string))
+                temp.append(percentage[7].contents[0])
+                LTC.append(temp)
+                if len(LTC) == 2:
+                    temp = []
+                    temp2 = []
+                    for j in range(2):       
+                        try:
+                            #print(DOGE[j][2])
+                            temp.append(LTC[j][2])
+                            temp2.append(LTC[j][1])
+                        except IndexError:
+                            print("Error")
+                            continue
+                    if(abs(percent_change(LTC[0][0],0,0,temp))>percent_change_val or abs(percent_change_2(temp2))>percent_change_val):
+                        speak.speak("warning Litecoin, percent change, greater than "  + str(percent_change(LTC[0][0],0,0,temp)) )
+                        print("LTC percent change " + str(percent_change(LTC[0][0],0,0,temp)))
+                        print("LTC percent change " + str(percent_change_2(temp2)))
+                    LTC = []
+        
+        ticks.append(timer)
+    except KeyboardInterrupt:
+        driver.close()
+        break
+
+
+driver.close()
+
+'''      
+<h4 class="TextElement__Spacer-hxkcw5-0 caIgfs Header__StyledHeader-sc-1xiyexz-0 jKklfu AssetTableRow__StyledHeader-bzcx4v-13 AssetTableRow__StyledHeaderDark-bzcx4v-15 hgGcEi">$6,691.25</h4>
+'''
