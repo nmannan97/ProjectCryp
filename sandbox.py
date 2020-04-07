@@ -52,14 +52,15 @@ while True:
             try:
                 print(temp[1])
                 data_predict_long = log_reg(price)
-                data_predict_short = log_reg(price)
+                data_predict_short = log_reg(price1)
                 print(100*(float(data_predict_short)/float(temp[1]) - 1))
                 time_tick = 0
-                price1 = []
             except ValueError:
                 time_tick = 0
         elif len(price) > 360000:
             price = []
+        elif len(price1) > 100:
+            price1 = []
         else: 
             time_tick += 1
     except KeyboardInterrupt:
